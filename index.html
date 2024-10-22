@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>PDF Merge and Sort</title>
+  <title>PDF Merge and Download</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -77,7 +77,7 @@
 </head>
 <body>
   <div class="container">
-    <h1>PDF Upload & Merge</h1>
+    <h1>PDF Upload, Merge & Download</h1>
 
     <!-- PDF Drag and Drop Zone -->
     <div id="drop-zone">
@@ -92,17 +92,23 @@
       <button id="sort-asc">Sort Ascending</button>
       <button id="sort-desc">Sort Descending</button>
       <button id="merge-pdf">Merge PDFs</button>
+      <button id="download-pdf" style="display:none;">Download Merged PDF</button>
     </div>
   </div>
 
+  <!-- PDFLib.js for PDF merging -->
+  <script src="https://unpkg.com/pdf-lib/dist/pdf-lib.js"></script>
+  
   <script>
     let pdfFiles = [];
+    let mergedPdfBytes = null;  // Store merged PDF data
 
     const dropZone = document.getElementById('drop-zone');
     const pdfList = document.getElementById('pdf-list');
     const sortAscBtn = document.getElementById('sort-asc');
     const sortDescBtn = document.getElementById('sort-desc');
     const mergeBtn = document.getElementById('merge-pdf');
+    const downloadBtn = document.getElementById('download-pdf');
 
     // Handle file drop
     dropZone.addEventListener('dragover', (e) => {
@@ -168,15 +174,43 @@
       renderPDFList();
     });
 
-    // Merge PDF functionality (placeholder)
-    mergeBtn.addEventListener('click', () => {
+    // Merge PDF functionality
+    mergeBtn.addEventListener('click', async () => {
       if (pdfFiles.length === 0) {
         alert('No PDFs uploaded to merge.');
         return;
       }
 
-      // TODO: Add PDF merging logic here (e.g., using a PDF library)
-      alert('PDFs merged successfully! (This is a placeholder alert)');
+      const pdfDoc = await PDFLib.PDFDocument.create();
+
+      for (const file of pdfFiles) {
+        const arrayBuffer = await file.arrayBuffer();
+        const loadedPdf = await PDFLib.PDFDocument.load(arrayBuffer);
+        const copiedPages = await pdfDoc.copyPages(loadedPdf, loadedPdf.getPageIndices());
+        copiedPages.forEach((page) => {
+          pdfDoc.addPage(page);
+        });
+      }
+
+      mergedPdfBytes = await pdfDoc.save();
+      alert('PDFs merged successfully!');
+
+      // Show the download button
+      downloadBtn.style.display = 'block';
+    });
+
+    // Download merged PDF
+    downloadBtn.addEventListener('click', () => {
+      if (mergedPdfBytes) {
+        const blob = new Blob([mergedPdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'merged.pdf';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
     });
   </script>
 </body>
