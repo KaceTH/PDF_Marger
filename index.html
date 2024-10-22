@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Merge and Sort</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f4f8;
+      color: #333;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 20px;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 600px;
+      background-color: #fff;
+      padding: 20px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      border-radius: 8px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #4A90E2;
+    }
+
+    #drop-zone {
+      border: 2px dashed #4A90E2;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      margin-bottom: 20px;
+      background-color: #f9fafb;
+    }
+
+    .pdf-list {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .pdf-list li {
+      padding: 10px;
+      margin: 5px 0;
+      border: 1px solid #ddd;
+      background-color: #f9f9f9;
+      border-radius: 4px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 10px;
+    }
+
+    .controls button {
+      padding: 10px 20px;
+      background-color: #4A90E2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .controls button:hover {
+      background-color: #357ABD;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>PDF Upload & Merge</h1>
+
+    <!-- PDF Drag and Drop Zone -->
+    <div id="drop-zone">
+      Drag and drop PDF files here or click to upload.
+    </div>
+
+    <!-- PDF List -->
+    <ul id="pdf-list" class="pdf-list"></ul>
+
+    <!-- Controls for sorting and merging -->
+    <div class="controls">
+      <button id="sort-asc">Sort Ascending</button>
+      <button id="sort-desc">Sort Descending</button>
+      <button id="merge-pdf">Merge PDFs</button>
+    </div>
+  </div>
+
+  <script>
+    let pdfFiles = [];
+
+    const dropZone = document.getElementById('drop-zone');
+    const pdfList = document.getElementById('pdf-list');
+    const sortAscBtn = document.getElementById('sort-asc');
+    const sortDescBtn = document.getElementById('sort-desc');
+    const mergeBtn = document.getElementById('merge-pdf');
+
+    // Handle file drop
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.style.backgroundColor = '#e6f7ff';
+    });
+
+    dropZone.addEventListener('dragleave', () => {
+      dropZone.style.backgroundColor = '#f9fafb';
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.style.backgroundColor = '#f9fafb';
+
+      const files = e.dataTransfer.files;
+      handleFiles(files);
+    });
+
+    // Handle file input via clicking the drop zone
+    dropZone.addEventListener('click', () => {
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = 'application/pdf';
+      fileInput.multiple = true;
+
+      fileInput.addEventListener('change', (e) => {
+        const files = e.target.files;
+        handleFiles(files);
+      });
+
+      fileInput.click();
+    });
+
+    function handleFiles(files) {
+      for (const file of files) {
+        if (file.type === 'application/pdf') {
+          pdfFiles.push(file);
+        }
+      }
+      renderPDFList();
+    }
+
+    function renderPDFList() {
+      pdfList.innerHTML = '';
+
+      pdfFiles.forEach((file, index) => {
+        const li = document.createElement('li');
+        li.textContent = file.name;
+        li.dataset.index = index;
+        pdfList.appendChild(li);
+      });
+    }
+
+    // Sorting functionality
+    sortAscBtn.addEventListener('click', () => {
+      pdfFiles.sort((a, b) => a.name.localeCompare(b.name));
+      renderPDFList();
+    });
+
+    sortDescBtn.addEventListener('click', () => {
+      pdfFiles.sort((a, b) => b.name.localeCompare(a.name));
+      renderPDFList();
+    });
+
+    // Merge PDF functionality (placeholder)
+    mergeBtn.addEventListener('click', () => {
+      if (pdfFiles.length === 0) {
+        alert('No PDFs uploaded to merge.');
+        return;
+      }
+
+      // TODO: Add PDF merging logic here (e.g., using a PDF library)
+      alert('PDFs merged successfully! (This is a placeholder alert)');
+    });
+  </script>
+</body>
+</html>
